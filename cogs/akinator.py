@@ -9,6 +9,7 @@ from akinator import (
     CantGoBackAnyFurther,
     AsyncAkinator,
     Answer,
+    Guess,
     Theme
 )
 
@@ -17,11 +18,15 @@ class Akinator(commands.Cog, name="akinator"):
         self.bot = bot
 
     @commands.hybrid_command(name="akinator", description="This command lets you play an akinator game")
-    async def akinator(self, interaction: Interaction):
+    async def akinator(self, context: Context):
         """
         [No Arguments] This is a command that lets you play an akinator game.
         """
-        await interaction.response.defer()
+        if context.interaction is None:
+            await context.reply("Hey! You can use this command by sending `/akinator`!")
+            return
+        
+        await context.interaction.response.defer()
         aki = AsyncAkinator(
             theme=Theme.from_str('characters'),
         )
@@ -31,7 +36,7 @@ class Akinator(commands.Cog, name="akinator"):
             description=first_question,
             color=discord.Color.blurple()
         )
-        aki_embed.set_image("https://en.akinator.com/bundles/elokencesite/images/akinator.png?v94")
+        aki_embed.set_image(url="https://en.akinator.com/bundles/elokencesite/images/akinator.png?v94")
         aki_embed.set_footer(text="Sometimes the bot may say 'This interaction failed', just push the button again.")
 
         #Create the view for the buttons
@@ -80,19 +85,20 @@ class Akinator(commands.Cog, name="akinator"):
                 await interaction.response.edit_message(embed=aki_embed)
         
         # Make function to check for win
-        async def win():
+        async def win() -> None:
             if aki.progression >= 80:
-                guess = await aki.win()
+                guess: Guess | None = await aki.win()
+                if context.interaction is None:
+                    return
                 if guess is None:
-                    await interaction.response.send_message("I don't know who you're thinking of!", ephemeral=True)
+                    await context.interaction.response.send_message(content="I don't know who you're thinking of!", ephemeral=True)
                     return
                 win_embed = discord.Embed(
                     title="I think I got it!",
                     description = f"**{guess.name}**: {guess.description}"
                 )
                 win_embed.set_image(url=guess.absolute_picture_path)
-                og_message = await interaction.original_message()
-                await og_message.edit(embed=win_embed, view=None)
+                await context.interaction.edit_original_response(embed=win_embed, view=None)
         
         # Add the callbacks to the buttons
         view.children[0].callback = yes_callback
@@ -105,7 +111,7 @@ class Akinator(commands.Cog, name="akinator"):
 
         view.timeout = 10000
 
-        await interaction.followup.send(embed=aki_embed, view=view)
+        await context.interaction.followup.send(embed=aki_embed, view=view)
 
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
