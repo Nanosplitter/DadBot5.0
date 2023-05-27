@@ -115,5 +115,5 @@ class Akinator(commands.Cog, name="akinator"):
 
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
-async def setup(bot):
-    await bot.add_cog(Akinator(bot))
+async def setup(bot) -> None:
+    await bot.add_cog(Akinator(bot=bot))
