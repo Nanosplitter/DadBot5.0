@@ -76,8 +76,8 @@ class Akinator(commands.Cog, name="akinator"):
         async def cancel_callback(interaction: Interaction):
             await interaction.response.edit_message(content="Game cancelled!", embed=None, view=None)
         
-        async def answer_button_callback(interaction, aki_embed, answer):
-            new_question = await aki.answer(answer)
+        async def answer_button_callback(interaction, aki_embed, answer) -> None:
+            new_question: str | None = await aki.answer(answer=answer)
             aki_embed.description = new_question
             if aki.progression >= 80:
                 await win()
