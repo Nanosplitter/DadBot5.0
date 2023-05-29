@@ -77,7 +77,7 @@ class Akinator(commands.Cog, name="akinator"):
             await interaction.response.edit_message(content="Game cancelled!", embed=None, view=None)
         
         async def answer_button_callback(interaction, aki_embed, answer) -> None:
-            new_question: str | None = await aki.answer(answer=answer)
+            new_question = await aki.answer(answer=answer)
             aki_embed.description = new_question
             if aki.progression >= 80:
                 await win()
@@ -87,7 +87,7 @@ class Akinator(commands.Cog, name="akinator"):
         # Make function to check for win
         async def win() -> None:
             if aki.progression >= 80:
-                guess: Guess | None = await aki.win()
+                guess = await aki.win()
                 if context.interaction is None:
                     return
                 if guess is None:
