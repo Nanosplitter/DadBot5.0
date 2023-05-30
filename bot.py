@@ -27,6 +27,7 @@ class DadBot(commands.Bot):
 
 intents: discord.Intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 class LoggingFormatter(logging.Formatter):
     black: str = "\x1b[30m"
@@ -73,15 +74,15 @@ logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
 
-async def init_db() -> None:
-    async with aiosqlite.connect(
-        database=f"{os.path.realpath(os.path.dirname(__file__))}/database/database.db"
-    ) as db:
-        with open(
-            file=f"{os.path.realpath(os.path.dirname(__file__))}/database/schema.sql"
-        ) as file:
-            await db.executescript(file.read())
-        await db.commit()
+# async def init_db() -> None:
+#     async with aiosqlite.connect(
+#         database=f"{os.path.realpath(os.path.dirname(__file__))}/database/database.db"
+#     ) as db:
+#         with open(
+#             file=f"{os.path.realpath(os.path.dirname(__file__))}/database/schema.sql"
+#         ) as file:
+#             await db.executescript(file.read())
+#         await db.commit()
 
 bot = DadBot(loggingFormatter=logger, botConfig=config)
 
@@ -212,6 +213,6 @@ async def load_cogs() -> None:
                 bot.logger.error(f"Failed to load extension {extension}\n{exception}")
 
 
-asyncio.run(init_db())
+# asyncio.run(init_db())
 asyncio.run(load_cogs())
 bot.run(token=config["token"])
