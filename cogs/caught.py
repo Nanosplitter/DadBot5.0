@@ -1,7 +1,8 @@
-import discord
-from discord import Interaction, app_commands
-from discord.ext import commands
-from discord.ext.commands import Context
+import nextcord
+from typing import Optional
+from nextcord.ext import commands
+from nextcord import Interaction, SlashOption, ChannelType
+from nextcord.abc import GuildChannel
 
 import mysql.connector
 
@@ -10,17 +11,17 @@ class Caught(commands.Cog, name="caught"):
         self.bot = bot
 
     # Here you can just add your own commands, you'll always need to provide "self" as first parameter.
-    @commands.hybrid_command(name="caught", description="See how many times everyone on the server has been caught by DadBot.")
-    async def caught(self, context: Context):
+    @nextcord.slash_command(name="caught", description="See how many times everyone on the server has been caught by DadBot.")
+    async def caught(self, interaction: Interaction):
         """
         [No Arguments] See how many times everyone on the server has been caught by DadBot.
         """
         members = []
-        if context.guild is None:
-            await context.reply("Hey! You can use this command in a server!")
+        if interaction.guild is None:
+            await interaction.response.send_message("Hey! You can use this command in a server!")
             return
         
-        for i in context.guild.members:
+        for i in interaction.guild.members:
             members.append(str(i))
         
         mydb = mysql.connector.connect(
@@ -36,7 +37,7 @@ class Caught(commands.Cog, name="caught"):
         rows = mycursor.fetchall()
         
         if rows is None:
-            await context.reply("No one has been caught yet!")
+            await interaction.response.send_message("No one has been caught yet!")
             return
         
         self.bot.logger.info(rows)
@@ -52,7 +53,7 @@ class Caught(commands.Cog, name="caught"):
         res += "```"
         mycursor.close()
         mydb.close()
-        await context.reply(res)
+        await interaction.response.send_message(res)
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot):

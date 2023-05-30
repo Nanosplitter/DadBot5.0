@@ -1,7 +1,7 @@
 import discord
-from discord import Interaction, app_commands
-from discord.ext import commands
-from discord.ext.commands import Context
+import nextcord
+from nextcord.ext import commands
+from nextcord import Interaction
 
 from helpers import db_manager
 
@@ -16,16 +16,13 @@ class Akinator(commands.Cog, name="akinator"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name="akinator", description="This command lets you play an akinator game")
-    async def akinator(self, context: Context):
+    @nextcord.slash_command(name="akinator", description="This command lets you play an akinator game")
+    async def akinator(self, interaction: Interaction):
         """
         [No Arguments] This is a command that lets you play an akinator game.
         """
-        if context.interaction is None:
-            await context.reply("Hey! You can use this command by sending `/akinator`!")
-            return
         
-        await context.interaction.response.defer()
+        await interaction.response.defer()
         aki = AsyncAkinator(
             theme=Theme.from_str('characters'),
         )
@@ -87,17 +84,18 @@ class Akinator(commands.Cog, name="akinator"):
         async def win() -> None:
             if aki.progression >= 80:
                 guess = await aki.win()
-                if context.interaction is None:
+                if interaction is None:
                     return
                 if guess is None:
-                    await context.interaction.response.send_message(content="I don't know who you're thinking of!", ephemeral=True)
+                    await interaction.response.send_message(content="I don't know who you're thinking of!", ephemeral=True)
                     return
                 win_embed = discord.Embed(
                     title="I think I got it!",
                     description = f"**{guess.name}**: {guess.description}"
                 )
                 win_embed.set_image(url=guess.absolute_picture_path)
-                await context.interaction.edit_original_response(embed=win_embed, view=None)
+                og_message = await interaction.original_message()
+                await og_message.edit(embed=win_embed, view=None)
         
         # Add the callbacks to the buttons
         view.children[0].callback = yes_callback
@@ -110,7 +108,7 @@ class Akinator(commands.Cog, name="akinator"):
 
         view.timeout = 10000
 
-        await context.interaction.followup.send(embed=aki_embed, view=view)
+        await interaction.followup.send(embed=aki_embed, view=view)
 
 
 # And then we finally add the cog to the bot so that it can load, unload, reload and use it's content.

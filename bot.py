@@ -7,9 +7,11 @@ import random
 import sys
 
 import aiosqlite
-import discord
-from discord.ext import commands, tasks
-from discord.ext.commands import Bot, Context
+import nextcord
+from typing import Optional
+from nextcord.ext import commands, tasks
+from nextcord import Interaction, SlashOption, ChannelType
+from nextcord.abc import GuildChannel
 
 import exceptions
 
@@ -25,7 +27,7 @@ class DadBot(commands.Bot):
         self.logger: logging.Logger = loggingFormatter
         self.config: dict = botConfig
 
-intents: discord.Intents = discord.Intents.default()
+intents: nextcord.Intents = nextcord.Intents.default()
 intents.message_content = True
 intents.members = True
 
@@ -92,7 +94,7 @@ async def on_ready() -> None:
         sys.exit("Bot has no user!")
     
     bot.logger.info(f"Logged in as {bot.user.name}")
-    bot.logger.info(f"discord.py API version: {discord.__version__}")
+    bot.logger.info(f"discord.py API version: {nextcord.__version__}")
     bot.logger.info(f"Python version: {platform.python_version()}")
     bot.logger.info(f"Running on: {platform.system()} {platform.release()} ({os.name})")
     bot.logger.info("-------------------")
@@ -108,22 +110,19 @@ async def status_task() -> None:
     Setup the game status task of the bot.
     """
     statuses: list[str] = ["with your mom"]
-    await bot.change_presence(activity=discord.Game(name=random.choice(seq=statuses)))
+    await bot.change_presence(activity=nextcord.Game(name=random.choice(seq=statuses)))
 
 
 @bot.event
-async def on_message(message: discord.Message) -> None:
+async def on_message(message: nextcord.Message) -> None:
     if message.author == bot.user or message.author.bot:
         return
     await bot.process_commands(message)
 
 
 @bot.event
-async def on_command_completion(context: Context) -> None:
-    if context.command is None:
-        return
-    
-    full_command_name: str = context.command.qualified_name
+async def on_command_completion(interaction: Interaction) -> None:
+    full_command_name: str = interaction.command.qualified_name
     split: list[str] = full_command_name.split(" ")
     executed_command = str(split[0])
     if context.guild is not None:
