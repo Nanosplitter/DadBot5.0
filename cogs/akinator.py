@@ -54,16 +54,16 @@ class Akinator(commands.Cog, name="akinator"):
             await answer_button_callback(interaction, aki_embed, Answer.Yes)
 
         async def no_callback(interaction: Interaction):
-            await answer_button_callback(interaction, aki_embed, Answer.No)  
+            await answer_button_callback(interaction, aki_embed, Answer.No)
 
         async def dont_know_callback(interaction: Interaction):
-            await answer_button_callback(interaction, aki_embed, Answer.Idk)  
+            await answer_button_callback(interaction, aki_embed, Answer.Idk)
 
         async def probably_callback(interaction: Interaction):
             await answer_button_callback(interaction, aki_embed, Answer.Probably)
                
         async def probably_not_callback(interaction: Interaction):
-            await answer_button_callback(interaction, aki_embed, Answer.ProbablyNot)  
+            await answer_button_callback(interaction, aki_embed, Answer.ProbablyNot)
 
         async def back_callback(interaction: Interaction):
             try:
