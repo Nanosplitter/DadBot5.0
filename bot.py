@@ -13,7 +13,7 @@ from discord.ext.commands import Bot, Context
 
 import exceptions
 
-if not os.path.isfile(path=f"{os.path.realpath(path=os.path.dirname(__file__))}/config.json"):
+if not os.path.isfile(path=f"{os.path.realpath(os.path.dirname(__file__))}/config.json"):
     sys.exit("'config.json' not found! Please add it and try again.")
 else:
     with open(file=f"{os.path.realpath(os.path.dirname(__file__))}/config.json") as file:
